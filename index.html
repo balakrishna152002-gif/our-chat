@@ -437,6 +437,7 @@
     #setup-modal.visible { display: flex; }
 
     .setup-card {
+      display: none;
       background: var(--surface);
       border-radius: 20px;
       padding: 32px;
@@ -612,7 +613,7 @@
 </div>
 
 <!-- ── SETUP MODAL ── -->
-<div id="setup-modal">
+<div id="setup-modal" hidden>
   <div class="setup-card">
     <h2>🔥 Firebase Setup</h2>
     <p>This takes ~5 minutes and is completely free. Firebase lets your messages sync in real-time between devices.</p>
