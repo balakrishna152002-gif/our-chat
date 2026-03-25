@@ -45,7 +45,7 @@
   }
 
   /* --- CARDS --- */
-  #login-screen, #lock-screen { width: 100%; max-width: 380px; padding: 20px; animation: fadeIn 0.8s ease; }
+  #login-screen, #lock-screen { width: 100%; max-width: 380px; padding: 20px; animation: fadeIn 0.8s ease; z-index: 10; }
   #lock-screen { display: none; }
 
   .login-card { 
@@ -91,8 +91,6 @@
   }
   .shake { animation: shake 0.4s ease-in-out; border-color: #dc2626 !important; }
 
-  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-
   /* --- CHAT SCREEN --- */
   #chat-screen { 
     display: none; width: 100%; max-width: 480px; height: 92vh; 
@@ -133,6 +131,20 @@
   #msg-input { width: 100%; border: none; outline: none; background: transparent; padding: 12px 0; color: inherit; font-family: inherit; }
   #send-btn { background: var(--accent-shundruu); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
+  /* --- HEART RAIN & ANIMATIONS --- */
+  .heart-rain {
+    position: fixed;
+    top: -20px;
+    font-size: 20px;
+    animation: fall linear forwards;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes bubblePop { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 </style>
@@ -210,57 +222,59 @@
   const SECRET_PIN = "1515";
   const ANNIVERSARY_DATE = '2026-02-03';
 
-  // --- 🛡️ PANIC GESTURE (RE-ENGINEERED) ---
-  function panicLogout() { 
-    window.location.reload(); 
-  }
-
-  // Desktop Emergency Key
+  // --- PANIC & LOCK ---
+  function panicLogout() { location.reload(); }
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') panicLogout(); });
 
-  // 📱 Shake Detection with Permission Request
   async function initShake() {
     if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      try {
-        const permission = await DeviceMotionEvent.requestPermission();
-        if (permission === 'granted') startMotionListener();
-      } catch (error) { console.error("Sensor denied"); }
-    } else { startMotionListener(); }
+      try { const p = await DeviceMotionEvent.requestPermission(); if (p === 'granted') startMotion(); } catch (e) {}
+    } else { startMotion(); }
   }
 
-  function startMotionListener() {
-    let lastX, lastY, lastZ, threshold = 15;
+  function startMotion() {
+    let lx, ly, lz, thresh = 15;
     window.addEventListener('devicemotion', (e) => {
-      let acc = e.accelerationIncludingGravity;
-      if (!acc || !acc.x) return;
-      if (lastX) {
-        let change = Math.abs(acc.x - lastX) + Math.abs(acc.y - lastY) + Math.abs(acc.z - lastZ);
-        if (change > threshold) panicLogout();
+      let a = e.accelerationIncludingGravity;
+      if (!a || !a.x) return;
+      if (lx) {
+        let diff = Math.abs(a.x-lx) + Math.abs(a.y-ly) + Math.abs(a.z-lz);
+        if (diff > thresh) panicLogout();
       }
-      lastX = acc.x; lastY = acc.y; lastZ = acc.z;
+      lx=a.x; ly=a.y; lz=a.z;
     });
   }
 
-  // --- 🎨 THEME ---
+  // --- HEART RAIN EFFECT ---
+  function startHeartRain() {
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart-rain';
+        heart.innerHTML = ['❤️', '💖', '💝', '💕'][Math.floor(Math.random() * 4)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 5000);
+      }, i * 100);
+    }
+  }
+
+  // --- THEME & TIMER ---
   window.setTheme = (t) => {
     document.body.className = 'theme-' + t;
     localStorage.setItem('chat-theme', t);
   };
   if(localStorage.getItem('chat-theme')) setTheme(localStorage.getItem('chat-theme'));
 
-  // --- ⏳ TIMER ---
   function updateAnniversary(date) {
-    const start = new Date(date);
-    const now = new Date();
-    const diff = Math.ceil(Math.abs(now - start) / (1000 * 60 * 60 * 24));
-    const loginCounter = document.getElementById('login-day-counter');
-    const chatCounter = document.getElementById('chat-day-counter');
-    if(loginCounter) loginCounter.textContent = diff;
-    if(chatCounter) chatCounter.textContent = "Day " + diff + " of us";
+    const diff = Math.ceil(Math.abs(new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
+    document.getElementById('login-day-counter').textContent = diff;
+    document.getElementById('chat-day-counter').textContent = "Day " + diff + " of us";
   }
   updateAnniversary(ANNIVERSARY_DATE);
 
-  // --- 🔒 LOCK & LOGIN ---
+  // --- LOGIN LOGIC ---
   window.requestLock = (name) => {
     currentUser = name;
     initShake(); 
@@ -270,8 +284,10 @@
   };
 
   document.getElementById('pin-field').addEventListener('input', function() {
-    if (this.value === SECRET_PIN) login(currentUser);
-    else if (this.value.length >= 4) {
+    if (this.value === SECRET_PIN) {
+      startHeartRain();
+      setTimeout(() => login(currentUser), 500);
+    } else if (this.value.length >= 4) {
       this.classList.add('shake');
       setTimeout(() => { this.value = ''; this.classList.remove('shake'); }, 400);
     }
@@ -284,21 +300,13 @@
     listenMessages();
   }
 
-  // --- 💬 MESSAGES ---
-  window.cancelReply = () => { 
-    replyingTo = null; 
-    document.getElementById('reply-preview').style.display = 'none'; 
-  };
+  // --- MESSAGES ---
+  window.cancelReply = () => { replyingTo = null; document.getElementById('reply-preview').style.display = 'none'; };
 
   window.sendMessage = () => {
     const input = document.getElementById('msg-input');
     if (!input.value.trim()) return;
-    const data = { 
-      sender: currentUser, 
-      text: input.value, 
-      ts: serverTimestamp(),
-      liked: false 
-    };
+    const data = { sender: currentUser, text: input.value, ts: serverTimestamp(), liked: false };
     if (replyingTo) { data.replyTo = replyingTo; cancelReply(); }
     push(ref(db, 'messages'), data);
     input.value = '';
@@ -307,28 +315,18 @@
 
   function listenMessages() {
     const msgsRef = ref(db, 'messages');
-    
-    // Handle New Messages
     onChildAdded(msgsRef, (snap) => {
       const msgId = snap.key;
       const msg = snap.val();
       const container = document.getElementById('messages');
       const row = document.createElement('div');
       row.className = 'msg-row ' + (msg.sender === currentUser ? 'mine' : 'theirs');
-      
       let replySnippet = msg.replyTo ? `<div class="reply-inside"><b>${msg.replyTo.sender}:</b> ${msg.replyTo.text.substring(0,25)}...</div>` : '';
       
-      row.innerHTML = `
-        <div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="b-${msgId}">
-          ${replySnippet}
-          ${msg.text.replace(/</g,'&lt;')}
-        </div>
-        <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ""}</div>
-      `;
+      row.innerHTML = `<div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="b-${msgId}">${replySnippet}${msg.text.replace(/</g,'&lt;')}</div>
+                       <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ""}</div>`;
       
       const bubble = row.querySelector('.msg-bubble');
-      
-      // Single Click to Reply
       bubble.addEventListener('click', () => {
         replyingTo = { sender: msg.sender, text: msg.text };
         document.getElementById('reply-to-text').textContent = "Replying to: " + msg.text;
@@ -336,38 +334,25 @@
         document.getElementById('msg-input').focus();
       });
 
-      // Double Click to Toggle Like (Fix included)
       bubble.addEventListener('dblclick', (e) => {
         e.stopPropagation();
-        const isCurrentlyLiked = bubble.classList.contains('liked');
-        update(ref(db, `messages/${msgId}`), { liked: !isCurrentlyLiked });
+        update(ref(db, `messages/${msgId}`), { liked: !bubble.classList.contains('liked') });
       });
 
       container.appendChild(row);
       setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     });
 
-    // Real-time Sync for Likes (Fix: Adding AND Removing class)
     onValue(msgsRef, (snap) => {
-      snap.forEach((childSnap) => {
-        const el = document.getElementById(`b-${childSnap.key}`);
-        if (el) {
-          if (childSnap.val().liked) {
-            el.classList.add('liked');
-          } else {
-            el.classList.remove('liked');
-          }
-        }
+      snap.forEach((child) => {
+        const el = document.getElementById(`b-${child.key}`);
+        if (el) child.val().liked ? el.classList.add('liked') : el.classList.remove('liked');
       });
     });
   }
 
-  // Auto-resize textarea
   const textarea = document.getElementById('msg-input');
-  textarea.addEventListener('input', function() { 
-    this.style.height = 'auto'; 
-    this.style.height = (this.scrollHeight) + 'px'; 
-  });
+  textarea.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; });
 </script>
 </body>
 </html>
