@@ -2,64 +2,150 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Ponnu & Shundruu 💬</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ponnu & Shundruu">
+  
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #f5f5f0; --surface: #ffffff; --border: #e8e8e3;
-      --text-primary: #1a1a1a; --text-secondary: #888880;
-      --accent-ponnu: #2563eb; --accent-shundruu: #db2777;
-      --bubble-ponnu: #2563eb; --bubble-shundruu: #f3f3ee;
-      --bubble-ponnu-text: #ffffff; --bubble-shundruu-text: #1a1a1a;
-    }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    
-    /* LOGIN SCREEN - Simplified */
-    #login-screen { width: 100%; max-width: 360px; padding: 20px; }
-    .login-card { background: var(--surface); border-radius: 20px; padding: 40px 36px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid var(--border); text-align: center; }
-    .brand h1 { font-size: 20px; margin-bottom: 32px; }
-    .user-options { display: flex; flex-direction: column; gap: 12px; }
-    .user-btn { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px; border: 2px solid var(--border); background: transparent; cursor: pointer; transition: 0.2s; width: 100%; }
-    .user-btn:hover { transform: translateY(-2px); }
-    .user-btn.ponnu { border-color: var(--accent-ponnu); }
-    .user-btn.shundruu { border-color: var(--accent-shundruu); }
-    .avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .ponnu .avatar { background: #dbeafe; color: var(--accent-ponnu); }
-    .shundruu .avatar { background: #fce7f3; color: var(--accent-shundruu); }
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --bg: #fff5f7; 
+    --surface: rgba(255, 255, 255, 0.9);
+    --border: #fce7f3;
+    --text-primary: #4d2d35;
+    --text-secondary: #94727a;
+    --accent-ponnu: #60a5fa;    /* BK Blue */
+    --accent-shundruu: #fb7185; /* Mathuu Pink */
+  }
 
-    /* CHAT SCREEN */
-    #chat-screen { display: none; width: 100%; max-width: 480px; height: 92vh; background: var(--surface); border-radius: 20px; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .chat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-    .msg-row { display: flex; flex-direction: column; max-width: 80%; }
-    .msg-row.mine { align-self: flex-end; align-items: flex-end; }
-    .msg-row.theirs { align-self: flex-start; }
-    .msg-bubble { padding: 10px 14px; border-radius: 15px; font-size: 14px; line-height: 1.4; }
-    .mine .msg-bubble { background: var(--accent-ponnu); color: white; border-bottom-right-radius: 2px; }
-    .theirs .msg-bubble { background: #f0f0f0; color: black; border-bottom-left-radius: 2px; }
-    body.is-shundruu .mine .msg-bubble { background: var(--accent-shundruu); }
-    .chat-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-    #msg-input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); outline: none; resize: none; }
-    #send-btn { background: var(--accent-ponnu); color: white; border: none; padding: 0 15px; border-radius: 10px; cursor: pointer; }
-    body.is-shundruu #send-btn { background: var(--accent-shundruu); }
-    #typing-indicator { font-size: 11px; color: gray; padding: 0 20px 5px; height: 15px; }
-  </style>
+  body { 
+    font-family: 'DM Sans', sans-serif; 
+    background: var(--bg); 
+    background-image: radial-gradient(#fbcfe8 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+    display: flex; justify-content: center; align-items: center; 
+    min-height: 100vh; color: var(--text-primary);
+    overflow: hidden;
+  }
+
+  /* --- LOGIN SCREEN --- */
+  #login-screen { width: 100%; max-width: 360px; padding: 20px; animation: fadeIn 0.8s ease; }
+  .login-card { 
+    background: white; border-radius: 30px; padding: 40px 36px; 
+    box-shadow: 0 10px 25px rgba(244, 114, 182, 0.15); 
+    border: 1px solid var(--border); text-align: center; 
+  }
+  .brand h1 { font-size: 22px; margin-bottom: 32px; color: var(--accent-shundruu); font-weight: 600; }
+  
+  .user-btn { 
+    display: flex; align-items: center; gap: 14px; padding: 20px; 
+    border-radius: 24px; border: 2px solid white; background: white; 
+    cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    width: 100%; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  }
+  .user-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+  .user-btn.ponnu:hover { border-color: var(--accent-ponnu); }
+  .user-btn.shundruu:hover { border-color: var(--accent-shundruu); }
+
+  .avatar { width: 50px; height: 50px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .ponnu .avatar { background: #eff6ff; border: 1px solid #dbeafe; }
+  .shundruu .avatar { background: #fff1f2; border: 1px solid #ffe4e6; }
+  
+  .btn-label { display: flex; flex-direction: column; align-items: flex-start; }
+  .btn-label .role { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
+  .btn-label .name { font-size: 16px; font-weight: 600; }
+
+  /* --- CHAT SCREEN --- */
+  #chat-screen { 
+    display: none; width: 100%; max-width: 480px; height: 92vh; 
+    background: var(--surface); border-radius: 35px; flex-direction: column; 
+    overflow: hidden; box-shadow: 0 20px 50px rgba(236, 72, 153, 0.1);
+    border: 1px solid white; backdrop-filter: blur(10px);
+  }
+
+  .chat-header { 
+    padding: 18px 25px; border-bottom: 1px solid var(--border); 
+    display: flex; justify-content: space-between; align-items: center; 
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .back-btn { 
+    background: white; border: 1px solid var(--border); color: var(--accent-shundruu); 
+    padding: 8px 15px; border-radius: 15px; font-size: 11px; font-weight: 700;
+    cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+    text-transform: uppercase;
+  }
+  .back-btn:hover { background: var(--accent-shundruu); color: white; transform: translateX(-3px); }
+
+  #messages { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; }
+  
+  .msg-row { display: flex; flex-direction: column; max-width: 85%; animation: bubblePop 0.4s ease; position: relative; }
+  .msg-row.mine { align-self: flex-end; align-items: flex-end; }
+  .msg-row.theirs { align-self: flex-start; align-items: flex-start; }
+  
+  .msg-bubble { 
+    padding: 12px 18px; border-radius: 22px; font-size: 14.5px; line-height: 1.5; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); user-select: none; cursor: pointer;
+    position: relative;
+  }
+  
+  .mine .msg-bubble { background: linear-gradient(135deg, var(--accent-ponnu), #3b82f6); color: white; border-bottom-right-radius: 4px; }
+  body.is-shundruu .mine .msg-bubble { background: linear-gradient(135deg, var(--accent-shundruu), #f43f5e); }
+  
+  .theirs .msg-bubble { background: white; color: var(--text-primary); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+  
+  .msg-time { font-size: 9px; color: var(--text-secondary); margin-top: 4px; padding: 0 5px; opacity: 0.8; }
+
+  /* Like Heart Indicator */
+  .msg-bubble.liked::after {
+    content: '❤️'; position: absolute; bottom: -10px; right: -5px;
+    font-size: 12px; background: white; border-radius: 50%; padding: 2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .heart-pop { position: absolute; font-size: 20px; animation: heartFly 0.8s ease-out forwards; pointer-events: none; z-index: 10; }
+  @keyframes heartFly {
+    0% { transform: scale(0); opacity: 0; bottom: 0; }
+    30% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(1) translateY(-40px); opacity: 0; }
+  }
+
+  /* Input Area */
+  .chat-input-area { padding: 15px 20px 25px; display: flex; gap: 10px; align-items: flex-end; }
+  .input-wrapper { flex: 1; background: white; border-radius: 25px; padding: 5px 15px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+  #msg-input { flex: 1; border: none; outline: none; padding: 10px 0; background: transparent; font-size: 14px; width: 100%; resize: none; }
+  
+  #send-btn { 
+    background: var(--accent-ponnu); color: white; border: none; width: 45px; height: 45px; 
+    border-radius: 50%; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+  }
+  body.is-shundruu #send-btn { background: var(--accent-shundruu); }
+  #send-btn:hover { transform: scale(1.1) rotate(-5deg); }
+
+  #typing-indicator { font-size: 11px; color: var(--accent-shundruu); padding: 0 25px 8px; height: 18px; font-style: italic; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bubblePop { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+</style>
 </head>
 <body>
 
 <div id="login-screen">
   <div class="login-card">
-    <div class="brand"><h1>Ponnu & Shundruu 💬</h1></div>
+    <div class="brand"><div style="font-size: 40px; margin-bottom: 10px;">👩‍❤️‍👨</div><h1>Our Private Space</h1></div>
     <div class="user-options">
       <button class="user-btn ponnu" onclick="login('Ponnu')">
-        <div class="avatar">P</div>
-        <div class="name">I am Ponnu</div>
+        <div class="avatar">👦🏻</div>
+        <div class="btn-label"><span class="role">BK</span><span class="name">I am Ponnu</span></div>
       </button>
       <button class="user-btn shundruu" onclick="login('Shundruu')">
-        <div class="avatar">S</div>
-        <div class="name">I am Shundruu</div>
+        <div class="avatar">👧🏻</div>
+        <div class="btn-label"><span class="role">Mathuu</span><span class="name">I am Shundruu</span></div>
       </button>
     </div>
   </div>
@@ -67,20 +153,25 @@
 
 <div id="chat-screen">
   <div class="chat-header">
-    <div style="font-weight: bold;">Ponnu & Shundruu 💕</div>
-    <button onclick="location.reload()" style="background:none; border:none; color:gray; cursor:pointer;">Logout</button>
+    <div class="header-info">
+      <div style="font-weight: 600; color: var(--accent-shundruu); font-size: 18px;">BK & Mathuu 💕</div>
+    </div>
+    <button class="back-btn" onclick="location.reload()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </button>
   </div>
   <div id="messages"></div>
   <div id="typing-indicator"></div>
   <div class="chat-input-area">
-    <textarea id="msg-input" placeholder="Type a message..." rows="1"></textarea>
-    <button id="send-btn" onclick="sendMessage()">Send</button>
+    <div class="input-wrapper"><textarea id="msg-input" placeholder="Type a message..." rows="1"></textarea></div>
+    <button id="send-btn" onclick="sendMessage()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, onChildAdded, serverTimestamp, onValue, set } 
+  import { getDatabase, ref, push, onChildAdded, serverTimestamp, onValue, set, update } 
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
@@ -95,8 +186,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  let currentUser = null;
-  let typingRef = null;
+  let currentUser = null, typingRef = null;
 
   window.login = function(name) {
     currentUser = name;
@@ -104,34 +194,81 @@
     document.getElementById('chat-screen').style.display = 'flex';
     document.body.classList.toggle('is-shundruu', name === 'Shundruu');
     
+    // Request notification permission
+    if ("Notification" in window) {
+      Notification.requestPermission();
+    }
+
     listenMessages();
     
-    // Setup typing
     const other = (name === 'Ponnu') ? 'Shundruu' : 'Ponnu';
     typingRef = ref(db, `typing/${name}`);
     onValue(ref(db, `typing/${other}`), (snap) => {
       document.getElementById('typing-indicator').textContent = snap.val() ? `${other} is typing...` : '';
     });
+
+    setTimeout(() => document.getElementById('msg-input').focus(), 100);
   };
 
   window.sendMessage = function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
     if (!text) return;
-    push(ref(db, 'messages'), { sender: currentUser, text, ts: serverTimestamp() });
+    push(ref(db, 'messages'), { sender: currentUser, text, ts: serverTimestamp(), liked: false });
     input.value = '';
     set(typingRef, null);
   };
 
   function listenMessages() {
-    onChildAdded(ref(db, 'messages'), (snap) => {
+    const msgsRef = ref(db, 'messages');
+    
+    onChildAdded(msgsRef, (snap) => {
+      const msgId = snap.key;
       const msg = snap.val();
       const container = document.getElementById('messages');
+      const isMine = msg.sender === currentUser;
+      
+      // Smart Scroll check
+      const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+
+      const time = msg.ts ? new Date(msg.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
       const row = document.createElement('div');
-      row.className = 'msg-row ' + (msg.sender === currentUser ? 'mine' : 'theirs');
-      row.innerHTML = `<div class="msg-bubble">${msg.text.replace(/</g,'&lt;')}</div>`;
+      row.className = 'msg-row ' + (isMine ? 'mine' : 'theirs');
+      row.innerHTML = `
+        <div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="bubble-${msgId}">${msg.text.replace(/</g,'&lt;')}</div>
+        <div class="msg-time">${time}</div>
+      `;
       container.appendChild(row);
-      container.scrollTop = container.scrollHeight;
+
+      // Notification Logic
+      if (!isMine && document.visibilityState === 'hidden') {
+        new Notification(`New message from ${msg.sender} ❤️`, { body: msg.text });
+      }
+
+      // --- Toggle Like on Double Tap ---
+      const bubble = row.querySelector('.msg-bubble');
+      bubble.addEventListener('dblclick', () => {
+        const currentlyLiked = bubble.classList.contains('liked');
+        if (!currentlyLiked) {
+          const heart = document.createElement('span');
+          heart.className = 'heart-pop'; heart.innerHTML = '❤️';
+          bubble.appendChild(heart);
+          setTimeout(() => heart.remove(), 800);
+        }
+        update(ref(db, `messages/${msgId}`), { liked: !currentlyLiked });
+      });
+
+      if (isAtBottom) {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      }
+    });
+
+    // Real-time Like Sync
+    onValue(msgsRef, (snap) => {
+      snap.forEach((childSnap) => {
+        const el = document.getElementById(`bubble-${childSnap.key}`);
+        if (el) childSnap.val().liked ? el.classList.add('liked') : el.classList.remove('liked');
+      });
     });
   }
 
