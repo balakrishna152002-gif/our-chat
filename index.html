@@ -13,7 +13,6 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   
   :root {
-    /* Default Rose Palette */
     --bg: #fff5f7; 
     --surface: rgba(255, 255, 255, 0.9);
     --border: #fce7f3;
@@ -24,13 +23,11 @@
     --grad: linear-gradient(135deg, #fb7185, #f43f5e);
   }
 
-  /* Red Palette */
   body.theme-red {
     --bg: #fef2f2; --border: #fee2e2; --text-primary: #7f1d1d;
     --accent-shundruu: #dc2626; --grad: linear-gradient(135deg, #dc2626, #991b1b);
   }
 
-  /* Wine Red Palette (#722F37) */
   body.theme-wine {
     --bg: #1a0a0c; --surface: rgba(45, 18, 22, 0.95); --border: #722f37;
     --text-primary: #fce7f3; --text-secondary: #ccaab0;
@@ -47,8 +44,10 @@
     overflow: hidden; transition: all 0.5s ease;
   }
 
-  /* --- LOGIN SCREEN --- */
-  #login-screen { width: 100%; max-width: 380px; padding: 20px; animation: fadeIn 0.8s ease; }
+  /* --- CARDS --- */
+  #login-screen, #lock-screen { width: 100%; max-width: 380px; padding: 20px; animation: fadeIn 0.8s ease; }
+  #lock-screen { display: none; }
+
   .login-card { 
     background: white; border-radius: 35px; padding: 40px 30px; 
     box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
@@ -60,10 +59,8 @@
 
   .brand h1 { font-size: 24px; margin-bottom: 25px; color: var(--accent-shundruu); font-weight: 600; }
 
-  /* Centered Theme Chooser */
   .theme-chooser { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
   .theme-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
-  .theme-dot:hover { transform: scale(1.2); }
   .dot-rose { background: #fb7185; }
   .dot-red { background: #dc2626; }
   .dot-wine { background: #722f37; }
@@ -80,12 +77,27 @@
   .ponnu .avatar { background: #eff6ff; color: #3b82f6; }
   .shundruu .avatar { background: #fff1f2; color: #fb7185; }
 
+  /* ANNIVERSARY LOGIN CARD */
   .anniversary-card {
     background: var(--bg); border-radius: 25px; padding: 20px; width: 100%;
-    border: 1px dashed var(--accent-shundruu); text-align: center;
+    border: 1px dashed var(--accent-shundruu); text-align: center; margin-top: 10px;
   }
   .days { font-size: 32px; font-weight: 800; color: var(--accent-shundruu); display: block; }
   .days-label { font-size: 11px; letter-spacing: 2px; font-weight: 700; opacity: 0.7; text-transform: uppercase; }
+
+  /* PIN INPUT */
+  .pin-input {
+    background: #fafafa; border: 2px solid #eee; border-radius: 15px;
+    padding: 15px; font-size: 24px; letter-spacing: 15px; text-align: center;
+    width: 100%; outline: none; transition: 0.3s; color: var(--text-primary);
+  }
+  .shake { animation: shake 0.4s ease-in-out; border-color: #dc2626 !important; }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
 
   /* --- CHAT SCREEN --- */
   #chat-screen { 
@@ -130,34 +142,33 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="brand"><h1>BK & Mathuu ❤️</h1></div>
-    
     <div class="theme-chooser">
-      <div class="theme-dot dot-rose" onclick="setTheme('rose')" title="Rose Pink"></div>
-      <div class="theme-dot dot-red" onclick="setTheme('red')" title="Bright Red"></div>
-      <div class="theme-dot dot-wine" onclick="setTheme('wine')" title="Wine Red"></div>
+      <div class="theme-dot dot-rose" onclick="setTheme('rose')"></div>
+      <div class="theme-dot dot-red" onclick="setTheme('red')"></div>
+      <div class="theme-dot dot-wine" onclick="setTheme('wine')"></div>
     </div>
-
     <div class="user-options">
-      <button class="user-btn ponnu" onclick="login('Ponnu')">
+      <button class="user-btn ponnu" onclick="requestLock('Ponnu')">
         <div class="avatar">👦🏻</div>
-        <div class="btn-label">
-          <span class="role">Ponnuuuu</span>
-          <span class="name"></span>
-        </div>
+        <div class="btn-label"><span class="role">Ponnuuuu</span><span class="name">I am BK</span></div>
       </button>
-      <button class="user-btn shundruu" onclick="login('Shundruu')">
+      <button class="user-btn shundruu" onclick="requestLock('Shundruu')">
         <div class="avatar">👧🏻</div>
-        <div class="btn-label">
-          <span class="role">Shundruuu</span>
-          <span class="name"></span>
-        </div>
+        <div class="btn-label"><span class="role">Shundruuu</span><span class="name">I am Mathuu</span></div>
       </button>
     </div>
-
     <div class="anniversary-card">
       <span class="days" id="login-day-counter">0</span>
       <span class="days-label">Days Together</span>
     </div>
+  </div>
+</div>
+
+<div id="lock-screen">
+  <div class="login-card">
+    <div class="brand"><h1>Enter Passcode</h1></div>
+    <input type="password" id="pin-field" class="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
+    <button class="back-btn" style="margin-top: 20px;" onclick="location.reload()">Cancel</button>
   </div>
 </div>
 
@@ -196,32 +207,53 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   let currentUser = null, replyingTo = null;
+  const SECRET_PIN = "1515";
+  const ANNIVERSARY_DATE = '2026-02-03';
 
+  // --- PANIC GESTURE ---
+  function panicLogout() { location.reload(); }
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') panicLogout(); });
+
+  // --- THEME ---
   window.setTheme = (t) => {
     document.body.className = 'theme-' + t;
     localStorage.setItem('chat-theme', t);
   };
-  const savedTheme = localStorage.getItem('chat-theme');
-  if(savedTheme) setTheme(savedTheme);
+  if(localStorage.getItem('chat-theme')) setTheme(localStorage.getItem('chat-theme'));
 
+  // --- TIMER ---
   function updateAnniversary(date) {
     const diff = Math.ceil(Math.abs(new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
     document.getElementById('login-day-counter').textContent = diff;
     document.getElementById('chat-day-counter').textContent = "Day " + diff + " of us";
   }
+  updateAnniversary(ANNIVERSARY_DATE);
 
-  window.login = (name) => {
+  // --- LOCK ---
+  window.requestLock = (name) => {
     currentUser = name;
     document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('lock-screen').style.display = 'block';
+    document.getElementById('pin-field').focus();
+  };
+
+  document.getElementById('pin-field').addEventListener('input', function() {
+    if (this.value === SECRET_PIN) login(currentUser);
+    else if (this.value.length >= 4) {
+      this.classList.add('shake');
+      setTimeout(() => { this.value = ''; this.classList.remove('shake'); }, 400);
+    }
+  });
+
+  function login(name) {
+    document.getElementById('lock-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'flex';
     document.body.classList.toggle('is-shundruu', name === 'Shundruu');
     listenMessages();
-  };
+  }
 
-  window.cancelReply = () => { 
-    replyingTo = null; 
-    document.getElementById('reply-preview').style.display = 'none'; 
-  };
+  // --- MESSAGES ---
+  window.cancelReply = () => { replyingTo = null; document.getElementById('reply-preview').style.display = 'none'; };
 
   window.sendMessage = () => {
     const input = document.getElementById('msg-input');
@@ -239,32 +271,22 @@
       const container = document.getElementById('messages');
       const row = document.createElement('div');
       row.className = 'msg-row ' + (msg.sender === currentUser ? 'mine' : 'theirs');
-      
       let replySnippet = msg.replyTo ? `<div class="reply-inside"><b>${msg.replyTo.sender}:</b> ${msg.replyTo.text.substring(0,25)}...</div>` : '';
-      
       row.innerHTML = `<div class="msg-bubble" id="b-${snap.key}">${replySnippet}${msg.text.replace(/</g,'&lt;')}</div>
                        <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ""}</div>`;
-      
       row.querySelector('.msg-bubble').onclick = () => {
         replyingTo = { sender: msg.sender, text: msg.text };
         document.getElementById('reply-to-text').textContent = "Replying to: " + msg.text;
         document.getElementById('reply-preview').style.display = 'flex';
         document.getElementById('msg-input').focus();
       };
-
       container.appendChild(row);
-      // Small delay ensures scroll happens after element is fully in the DOM
       setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     });
   }
 
   const textarea = document.getElementById('msg-input');
-  textarea.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-  });
-
-  updateAnniversary('2026-02-03'); // Anniversary Date
+  textarea.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; });
 </script>
 </body>
 </html>
