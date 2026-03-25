@@ -77,7 +77,6 @@
   .ponnu .avatar { background: #eff6ff; color: #3b82f6; }
   .shundruu .avatar { background: #fff1f2; color: #fb7185; }
 
-  /* ANNIVERSARY LOGIN CARD */
   .anniversary-card {
     background: var(--bg); border-radius: 25px; padding: 20px; width: 100%;
     border: 1px dashed var(--accent-shundruu); text-align: center; margin-top: 10px;
@@ -85,7 +84,6 @@
   .days { font-size: 32px; font-weight: 800; color: var(--accent-shundruu); display: block; }
   .days-label { font-size: 11px; letter-spacing: 2px; font-weight: 700; opacity: 0.7; text-transform: uppercase; }
 
-  /* PIN INPUT */
   .pin-input {
     background: #fafafa; border: 2px solid #eee; border-radius: 15px;
     padding: 15px; font-size: 24px; letter-spacing: 15px; text-align: center;
@@ -93,11 +91,7 @@
   }
   .shake { animation: shake 0.4s ease-in-out; border-color: #dc2626 !important; }
 
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-  }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
   /* --- CHAT SCREEN --- */
   #chat-screen { 
@@ -121,6 +115,12 @@
   
   .theirs .msg-bubble { background: white; color: #1a1a1a; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
   body.theme-wine .theirs .msg-bubble { background: #3d1a1e; color: white; border-color: #722f37; }
+
+  .msg-bubble.liked::after {
+    content: '❤️'; position: absolute; bottom: -8px; right: -5px;
+    font-size: 12px; background: white; border-radius: 50%; padding: 2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
 
   .msg-time { font-size: 9px; opacity: 0.6; margin-top: 4px; padding: 0 5px; }
 
@@ -210,75 +210,47 @@
   const SECRET_PIN = "1515";
   const ANNIVERSARY_DATE = '2026-02-03';
 
-  // --- 🛡️ PANIC GESTURE (RE-ENGINEERED) ---
-  function panicLogout() { 
-    window.location.href = window.location.href; // Hard reload
-  }
-
-  // Desktop Emergency Key
+  function panicLogout() { location.reload(); }
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') panicLogout(); });
 
-  // 📱 Shake Detection with Permission Request
   async function initShake() {
     if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      // iOS 13+ requires permission
       try {
         const permission = await DeviceMotionEvent.requestPermission();
-        if (permission === 'granted') {
-          startMotionListener();
-        }
-      } catch (error) {
-        console.error("Sensor access denied");
-      }
-    } else {
-      // Android and older iOS
-      startMotionListener();
-    }
+        if (permission === 'granted') startMotionListener();
+      } catch (error) { console.error("Sensor denied"); }
+    } else { startMotionListener(); }
   }
 
   function startMotionListener() {
-    let lastX, lastY, lastZ;
-    let threshold = 15; // Lowered for better sensitivity
-
+    let lastX, lastY, lastZ, threshold = 15;
     window.addEventListener('devicemotion', (e) => {
       let acc = e.accelerationIncludingGravity;
       if (!acc || !acc.x) return;
-
       if (lastX) {
         let change = Math.abs(acc.x - lastX) + Math.abs(acc.y - lastY) + Math.abs(acc.z - lastZ);
-        if (change > threshold) {
-          panicLogout();
-        }
+        if (change > threshold) panicLogout();
       }
       lastX = acc.x; lastY = acc.y; lastZ = acc.z;
     });
   }
 
-  // --- 🎨 THEME ---
   window.setTheme = (t) => {
     document.body.className = 'theme-' + t;
     localStorage.setItem('chat-theme', t);
   };
   if(localStorage.getItem('chat-theme')) setTheme(localStorage.getItem('chat-theme'));
 
-  // --- ⏳ TIMER ---
   function updateAnniversary(date) {
-    const start = new Date(date);
-    const now = new Date();
-    const diff = Math.ceil(Math.abs(now - start) / (1000 * 60 * 60 * 24));
-    const loginCounter = document.getElementById('login-day-counter');
-    const chatCounter = document.getElementById('chat-day-counter');
-    if(loginCounter) loginCounter.textContent = diff;
-    if(chatCounter) chatCounter.textContent = "Day " + diff + " of us";
+    const diff = Math.ceil(Math.abs(new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
+    document.getElementById('login-day-counter').textContent = diff;
+    document.getElementById('chat-day-counter').textContent = "Day " + diff + " of us";
   }
   updateAnniversary(ANNIVERSARY_DATE);
 
-  // --- 🔒 LOCK & LOGIN ---
   window.requestLock = (name) => {
     currentUser = name;
-    // Request Shake Permission on first click (User Gesture required)
     initShake(); 
-    
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('lock-screen').style.display = 'block';
     document.getElementById('pin-field').focus();
@@ -299,16 +271,12 @@
     listenMessages();
   }
 
-  // --- 💬 MESSAGES ---
-  window.cancelReply = () => { 
-    replyingTo = null; 
-    document.getElementById('reply-preview').style.display = 'none'; 
-  };
+  window.cancelReply = () => { replyingTo = null; document.getElementById('reply-preview').style.display = 'none'; };
 
   window.sendMessage = () => {
     const input = document.getElementById('msg-input');
     if (!input.value.trim()) return;
-    const data = { sender: currentUser, text: input.value, ts: serverTimestamp() };
+    const data = { sender: currentUser, text: input.value, ts: serverTimestamp(), liked: false };
     if (replyingTo) { data.replyTo = replyingTo; cancelReply(); }
     push(ref(db, 'messages'), data);
     input.value = '';
@@ -316,22 +284,40 @@
   };
 
   function listenMessages() {
-    onChildAdded(ref(db, 'messages'), (snap) => {
+    const msgsRef = ref(db, 'messages');
+    onChildAdded(msgsRef, (snap) => {
+      const msgId = snap.key;
       const msg = snap.val();
       const container = document.getElementById('messages');
       const row = document.createElement('div');
       row.className = 'msg-row ' + (msg.sender === currentUser ? 'mine' : 'theirs');
       let replySnippet = msg.replyTo ? `<div class="reply-inside"><b>${msg.replyTo.sender}:</b> ${msg.replyTo.text.substring(0,25)}...</div>` : '';
-      row.innerHTML = `<div class="msg-bubble" id="b-${snap.key}">${replySnippet}${msg.text.replace(/</g,'&lt;')}</div>
+      
+      row.innerHTML = `<div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="b-${msgId}">${replySnippet}${msg.text.replace(/</g,'&lt;')}</div>
                        <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ""}</div>`;
-      row.querySelector('.msg-bubble').onclick = () => {
+      
+      const bubble = row.querySelector('.msg-bubble');
+      bubble.onclick = () => {
         replyingTo = { sender: msg.sender, text: msg.text };
         document.getElementById('reply-to-text').textContent = "Replying to: " + msg.text;
         document.getElementById('reply-preview').style.display = 'flex';
         document.getElementById('msg-input').focus();
       };
+      
+      bubble.ondblclick = (e) => {
+        e.stopPropagation();
+        update(ref(db, `messages/${msgId}`), { liked: !msg.liked });
+      };
+
       container.appendChild(row);
       setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+    });
+
+    onValue(msgsRef, (snap) => {
+      snap.forEach((child) => {
+        const el = document.getElementById(`b-${child.key}`);
+        if (el) child.val().liked ? el.classList.add('liked') : el.classList.remove('liked');
+      });
     });
   }
 
