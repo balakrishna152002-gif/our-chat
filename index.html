@@ -438,7 +438,6 @@
     #setup-modal.visible { display: flex; }
 
     .setup-card {
-      display: none;
       background: var(--surface);
       border-radius: 20px;
       padding: 32px;
@@ -560,7 +559,7 @@
       </button>
     </div>
 
-    <div class="firebase-note">
+    <div class="firebase-note" >
       <strong>⚙️ First time setup?</strong>
       You need to connect Firebase for real-time messaging.
       <a href="#" onclick="openSetup(); return false;" style="color: #92400e; font-weight:600;">Click here to configure →</a>
@@ -614,7 +613,7 @@
 </div>
 
 <!-- ── SETUP MODAL ── -->
-<div id="setup-modal" hidden>
+<div id="setup-modal">
   <div class="setup-card">
     <h2>🔥 Firebase Setup</h2>
     <p>This takes ~5 minutes and is completely free. Firebase lets your messages sync in real-time between devices.</p>
