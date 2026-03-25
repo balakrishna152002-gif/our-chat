@@ -210,9 +210,15 @@
   const SECRET_PIN = "1515";
   const ANNIVERSARY_DATE = '2026-02-03';
 
-  function panicLogout() { location.reload(); }
+  // --- 🛡️ PANIC GESTURE (RE-ENGINEERED) ---
+  function panicLogout() { 
+    window.location.reload(); 
+  }
+
+  // Desktop Emergency Key
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') panicLogout(); });
 
+  // 📱 Shake Detection with Permission Request
   async function initShake() {
     if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
       try {
@@ -235,19 +241,26 @@
     });
   }
 
+  // --- 🎨 THEME ---
   window.setTheme = (t) => {
     document.body.className = 'theme-' + t;
     localStorage.setItem('chat-theme', t);
   };
   if(localStorage.getItem('chat-theme')) setTheme(localStorage.getItem('chat-theme'));
 
+  // --- ⏳ TIMER ---
   function updateAnniversary(date) {
-    const diff = Math.ceil(Math.abs(new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
-    document.getElementById('login-day-counter').textContent = diff;
-    document.getElementById('chat-day-counter').textContent = "Day " + diff + " of us";
+    const start = new Date(date);
+    const now = new Date();
+    const diff = Math.ceil(Math.abs(now - start) / (1000 * 60 * 60 * 24));
+    const loginCounter = document.getElementById('login-day-counter');
+    const chatCounter = document.getElementById('chat-day-counter');
+    if(loginCounter) loginCounter.textContent = diff;
+    if(chatCounter) chatCounter.textContent = "Day " + diff + " of us";
   }
   updateAnniversary(ANNIVERSARY_DATE);
 
+  // --- 🔒 LOCK & LOGIN ---
   window.requestLock = (name) => {
     currentUser = name;
     initShake(); 
@@ -271,12 +284,21 @@
     listenMessages();
   }
 
-  window.cancelReply = () => { replyingTo = null; document.getElementById('reply-preview').style.display = 'none'; };
+  // --- 💬 MESSAGES ---
+  window.cancelReply = () => { 
+    replyingTo = null; 
+    document.getElementById('reply-preview').style.display = 'none'; 
+  };
 
   window.sendMessage = () => {
     const input = document.getElementById('msg-input');
     if (!input.value.trim()) return;
-    const data = { sender: currentUser, text: input.value, ts: serverTimestamp(), liked: false };
+    const data = { 
+      sender: currentUser, 
+      text: input.value, 
+      ts: serverTimestamp(),
+      liked: false 
+    };
     if (replyingTo) { data.replyTo = replyingTo; cancelReply(); }
     push(ref(db, 'messages'), data);
     input.value = '';
@@ -285,42 +307,62 @@
 
   function listenMessages() {
     const msgsRef = ref(db, 'messages');
+    
+    // Handle New Messages
     onChildAdded(msgsRef, (snap) => {
       const msgId = snap.key;
       const msg = snap.val();
       const container = document.getElementById('messages');
       const row = document.createElement('div');
       row.className = 'msg-row ' + (msg.sender === currentUser ? 'mine' : 'theirs');
+      
       let replySnippet = msg.replyTo ? `<div class="reply-inside"><b>${msg.replyTo.sender}:</b> ${msg.replyTo.text.substring(0,25)}...</div>` : '';
       
-      row.innerHTML = `<div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="b-${msgId}">${replySnippet}${msg.text.replace(/</g,'&lt;')}</div>
-                       <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ""}</div>`;
+      row.innerHTML = `
+        <div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="b-${msgId}">
+          ${replySnippet}
+          ${msg.text.replace(/</g,'&lt;')}
+        </div>
+        <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ""}</div>
+      `;
       
       const bubble = row.querySelector('.msg-bubble');
-      bubble.onclick = () => {
+      
+      // Single Click to Reply
+      bubble.addEventListener('click', () => {
         replyingTo = { sender: msg.sender, text: msg.text };
         document.getElementById('reply-to-text').textContent = "Replying to: " + msg.text;
         document.getElementById('reply-preview').style.display = 'flex';
         document.getElementById('msg-input').focus();
-      };
-      
-      bubble.ondblclick = (e) => {
+      });
+
+      // Double Click to Toggle Like (Fix included)
+      bubble.addEventListener('dblclick', (e) => {
         e.stopPropagation();
-        update(ref(db, `messages/${msgId}`), { liked: !msg.liked });
-      };
+        const isCurrentlyLiked = bubble.classList.contains('liked');
+        update(ref(db, `messages/${msgId}`), { liked: !isCurrentlyLiked });
+      });
 
       container.appendChild(row);
       setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     });
 
+    // Real-time Sync for Likes (Fix: Adding AND Removing class)
     onValue(msgsRef, (snap) => {
-      snap.forEach((child) => {
-        const el = document.getElementById(`b-${child.key}`);
-        if (el) child.val().liked ? el.classList.add('liked') : el.classList.remove('liked');
+      snap.forEach((childSnap) => {
+        const el = document.getElementById(`b-${childSnap.key}`);
+        if (el) {
+          if (childSnap.val().liked) {
+            el.classList.add('liked');
+          } else {
+            el.classList.remove('liked');
+          }
+        }
       });
     });
   }
 
+  // Auto-resize textarea
   const textarea = document.getElementById('msg-input');
   textarea.addEventListener('input', function() { 
     this.style.height = 'auto'; 
