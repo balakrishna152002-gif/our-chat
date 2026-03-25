@@ -7,193 +7,167 @@
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ponnu & Shundruu">
   
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   
   :root {
+    /* Default Rose Palette */
     --bg: #fff5f7; 
     --surface: rgba(255, 255, 255, 0.9);
     --border: #fce7f3;
     --text-primary: #4d2d35;
     --text-secondary: #94727a;
-    --accent-ponnu: #60a5fa;    /* BK Blue */
-    --accent-shundruu: #fb7185; /* Mathuu Pink */
+    --accent-ponnu: #60a5fa; 
+    --accent-shundruu: #fb7185; 
+    --grad: linear-gradient(135deg, #fb7185, #f43f5e);
+  }
+
+  /* Red Palette */
+  body.theme-red {
+    --bg: #fef2f2; --border: #fee2e2; --text-primary: #7f1d1d;
+    --accent-shundruu: #dc2626; --grad: linear-gradient(135deg, #dc2626, #991b1b);
+  }
+
+  /* Wine Red Palette (#722F37) */
+  body.theme-wine {
+    --bg: #1a0a0c; --surface: rgba(45, 18, 22, 0.95); --border: #722f37;
+    --text-primary: #fce7f3; --text-secondary: #ccaab0;
+    --accent-shundruu: #722f37; --grad: linear-gradient(135deg, #722f37, #4a1e24);
   }
 
   body { 
     font-family: 'DM Sans', sans-serif; 
     background: var(--bg); 
-    background-image: radial-gradient(#fbcfe8 0.5px, transparent 0.5px);
+    background-image: radial-gradient(var(--border) 0.5px, transparent 0.5px);
     background-size: 20px 20px;
     display: flex; justify-content: center; align-items: center; 
     min-height: 100vh; color: var(--text-primary);
-    overflow: hidden;
+    overflow: hidden; transition: all 0.5s ease;
   }
 
   /* --- LOGIN SCREEN --- */
   #login-screen { width: 100%; max-width: 380px; padding: 20px; animation: fadeIn 0.8s ease; }
   .login-card { 
-    background: white; border-radius: 30px; padding: 35px 30px; 
-    box-shadow: 0 10px 25px rgba(244, 114, 182, 0.15); 
-    border: 1px solid var(--border); text-align: center; 
+    background: white; border-radius: 35px; padding: 40px 30px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+    border: 1px solid var(--border); text-align: center;
+    display: flex; flex-direction: column; align-items: center;
   }
-  .brand h1 { font-size: 22px; margin-bottom: 25px; color: var(--accent-shundruu); font-weight: 600; }
   
-  .user-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-  
+  body.theme-wine .login-card { background: #2d1216; border-color: #722f37; }
+
+  .brand h1 { font-size: 24px; margin-bottom: 25px; color: var(--accent-shundruu); font-weight: 600; }
+
+  /* Centered Theme Chooser */
+  .theme-chooser { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+  .theme-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+  .theme-dot:hover { transform: scale(1.2); }
+  .dot-rose { background: #fb7185; }
+  .dot-red { background: #dc2626; }
+  .dot-wine { background: #722f37; }
+
+  .user-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; width: 100%; }
   .user-btn { 
     display: flex; align-items: center; gap: 14px; padding: 18px; 
-    border-radius: 20px; border: 2px solid white; background: #fafafa; 
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    border-radius: 20px; border: 2px solid #f0f0f0; background: #fafafa; 
+    cursor: pointer; transition: 0.3s; width: 100%; text-align: left;
   }
-  .user-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); background: white; }
-  .user-btn.ponnu:hover { border-color: var(--accent-ponnu); }
-  .user-btn.shundruu:hover { border-color: var(--accent-shundruu); }
-
-  .avatar { width: 45px; height: 45px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-  .ponnu .avatar { background: #eff6ff; border: 1px solid #dbeafe; }
-  .shundruu .avatar { background: #fff1f2; border: 1px solid #ffe4e6; }
+  .user-btn:hover { transform: translateY(-3px); background: white; border-color: var(--accent-shundruu); }
   
-  .btn-label { display: flex; flex-direction: column; align-items: flex-start; }
-  .btn-label .role { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
-  .btn-label .name { font-size: 15px; font-weight: 600; }
+  .avatar { width: 45px; height: 45px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .ponnu .avatar { background: #eff6ff; color: #3b82f6; }
+  .shundruu .avatar { background: #fff1f2; color: #fb7185; }
 
   .anniversary-card {
-    background: linear-gradient(135deg, #fff1f2, #fdf2f8);
-    border-radius: 20px; padding: 20px; border: 1px dashed var(--accent-shundruu);
-    display: flex; flex-direction: column; gap: 5px;
+    background: var(--bg); border-radius: 25px; padding: 20px; width: 100%;
+    border: 1px dashed var(--accent-shundruu); text-align: center;
   }
-  .anniversary-card .days { font-size: 28px; font-weight: 800; color: var(--accent-shundruu); }
-  .anniversary-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); font-weight: 600; }
+  .days { font-size: 32px; font-weight: 800; color: var(--accent-shundruu); display: block; }
+  .days-label { font-size: 11px; letter-spacing: 2px; font-weight: 700; opacity: 0.7; text-transform: uppercase; }
 
   /* --- CHAT SCREEN --- */
   #chat-screen { 
     display: none; width: 100%; max-width: 480px; height: 92vh; 
     background: var(--surface); border-radius: 35px; flex-direction: column; 
-    overflow: hidden; box-shadow: 0 20px 50px rgba(236, 72, 153, 0.1);
-    border: 1px solid white; backdrop-filter: blur(10px);
+    overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(15px);
   }
 
-  .chat-header { 
-    padding: 15px 25px; border-bottom: 1px solid var(--border); 
-    display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(255, 255, 255, 0.4);
-  }
-
-  .header-info .title { font-weight: 600; color: var(--accent-shundruu); font-size: 17px; }
-  .header-info .mini-timer { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-
-  .back-btn { 
-    background: white; border: 1px solid var(--border); color: var(--accent-shundruu); 
-    padding: 7px 12px; border-radius: 12px; font-size: 10px; font-weight: 700;
-    cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 4px;
-    text-transform: uppercase;
-  }
-  .back-btn:hover { background: var(--accent-shundruu); color: white; transform: translateX(-3px); }
+  .chat-header { padding: 18px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .back-btn { background: white; border: 1px solid var(--border); color: var(--accent-shundruu); padding: 8px 15px; border-radius: 15px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
 
   #messages { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; }
-  
-  /* Message Bubbles */
-  .msg-row { display: flex; flex-direction: column; max-width: 85%; animation: bubblePop 0.4s ease; position: relative; }
+  .msg-row { display: flex; flex-direction: column; max-width: 85%; animation: bubblePop 0.4s ease; }
   .msg-row.mine { align-self: flex-end; align-items: flex-end; }
-  .msg-row.theirs { align-self: flex-start; align-items: flex-start; }
+  .msg-row.theirs { align-self: flex-start; }
   
-  /* Reply Preview inside Bubble */
-  .reply-inside {
-    background: rgba(0,0,0,0.05); border-left: 3px solid rgba(0,0,0,0.2);
-    padding: 5px 10px; border-radius: 10px; font-size: 11px; margin-bottom: 5px; opacity: 0.8;
-  }
-
-  .msg-bubble { 
-    padding: 12px 18px; border-radius: 22px; font-size: 14.5px; line-height: 1.5; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03); user-select: none;
-  }
+  .msg-bubble { padding: 12px 18px; border-radius: 22px; font-size: 14.5px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .mine .msg-bubble { background: var(--grad); color: white; border-bottom-right-radius: 4px; }
+  body:not(.theme-red):not(.theme-wine):not(.is-shundruu) .mine .msg-bubble { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
   
-  .mine .msg-bubble { background: linear-gradient(135deg, var(--accent-ponnu), #3b82f6); color: white; border-bottom-right-radius: 4px; }
-  body.is-shundruu .mine .msg-bubble { background: linear-gradient(135deg, var(--accent-shundruu), #f43f5e); }
-  
-  .theirs .msg-bubble { background: white; color: var(--text-primary); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
-  .msg-time { font-size: 9px; color: var(--text-secondary); margin-top: 4px; padding: 0 5px; opacity: 0.8; }
+  .theirs .msg-bubble { background: white; color: #1a1a1a; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+  body.theme-wine .theirs .msg-bubble { background: #3d1a1e; color: white; }
 
-  .msg-bubble.liked::after {
-    content: '❤️'; position: absolute; bottom: -8px; right: -5px;
-    font-size: 12px; background: white; border-radius: 50%; padding: 2px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
+  .msg-time { font-size: 9px; opacity: 0.6; margin-top: 4px; padding: 0 5px; }
 
-  /* --- REPLY UI --- */
-  #reply-preview {
-    display: none; padding: 10px 20px; background: #fff; border-top: 1px solid var(--border);
-    animation: slideUp 0.3s ease; align-items: center; justify-content: space-between;
-  }
-  .reply-box { border-left: 3px solid var(--accent-shundruu); padding-left: 10px; font-size: 12px; }
-  .reply-box .reply-name { font-weight: bold; color: var(--accent-shundruu); }
-  .cancel-reply { cursor: pointer; color: var(--text-secondary); font-size: 18px; padding: 0 10px; }
+  .reply-inside { background: rgba(0,0,0,0.08); padding: 6px 10px; border-radius: 12px; font-size: 11px; margin-bottom: 5px; border-left: 3px solid var(--accent-shundruu); }
+  #reply-preview { display: none; padding: 12px 20px; background: var(--surface); border-top: 1px solid var(--border); align-items: center; justify-content: space-between; }
 
-  .chat-input-area { padding: 10px 20px 25px; display: flex; gap: 10px; align-items: flex-end; }
-  .input-wrapper { flex: 1; background: white; border-radius: 25px; padding: 5px 15px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
-  #msg-input { flex: 1; border: none; outline: none; padding: 10px 0; background: transparent; font-size: 14px; width: 100%; resize: none; }
-  
-  #send-btn { 
-    background: var(--accent-ponnu); color: white; border: none; width: 45px; height: 45px; 
-    border-radius: 50%; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
-  }
-  body.is-shundruu #send-btn { background: var(--accent-shundruu); }
+  .chat-input-area { padding: 15px 20px 25px; display: flex; gap: 10px; }
+  .input-wrapper { flex: 1; background: white; border-radius: 25px; padding: 5px 18px; border: 1px solid var(--border); }
+  body.theme-wine .input-wrapper { background: #3d1a1e; }
+  #msg-input { width: 100%; border: none; outline: none; background: transparent; padding: 12px 0; color: inherit; }
+  #send-btn { background: var(--accent-shundruu); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
-  @keyframes bubblePop { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bubblePop { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 </style>
 </head>
-<body>
+<body class="theme-rose">
 
 <div id="login-screen">
   <div class="login-card">
-    <div class="brand"><div style="font-size: 40px; margin-bottom: 10px;">👩‍❤️‍👨</div><h1>Our Private Space</h1></div>
+    <div class="brand"><h1>BK & Mathuu ❤️</h1></div>
+    
+    <div class="theme-chooser">
+      <div class="theme-dot dot-rose" onclick="setTheme('rose')" title="Rose Pink"></div>
+      <div class="theme-dot dot-red" onclick="setTheme('red')" title="Bright Red"></div>
+      <div class="theme-dot dot-wine" onclick="setTheme('wine')" title="Wine Red"></div>
+    </div>
+
     <div class="user-options">
       <button class="user-btn ponnu" onclick="login('Ponnu')">
         <div class="avatar">👦🏻</div>
-        <div class="btn-label"><span class="role">BK</span><span class="name">I am Ponnu</span></div>
+        <div class="btn-label"><span class="role">The Boy</span><span class="name">I am BK</span></div>
       </button>
       <button class="user-btn shundruu" onclick="login('Shundruu')">
         <div class="avatar">👧🏻</div>
-        <div class="btn-label"><span class="role">Mathuu</span><span class="name">I am Shundruu</span></div>
+        <div class="btn-label"><span class="role">The Girl</span><span class="name">I am Mathuu</span></div>
       </button>
     </div>
+
     <div class="anniversary-card">
-      <div class="label">Days Together</div>
-      <div class="days" id="login-day-counter">0</div>
-      <div style="font-size: 12px; opacity: 0.7;">& counting ❤️</div>
+      <span class="days" id="login-day-counter">0</span>
+      <span class="days-label">Days Together</span>
     </div>
   </div>
 </div>
 
 <div id="chat-screen">
   <div class="chat-header">
-    <div class="header-info">
-      <div class="title">BK & Mathuu 💕</div>
-      <div class="mini-timer">Day <span id="chat-day-counter">0</span> Together</div>
-    </div>
+    <div><b id="chat-title">BK & Mathuu 💕</b><br><small id="chat-day-counter" style="font-size: 10px; opacity: 0.8;"></small></div>
     <button class="back-btn" onclick="location.reload()">Back</button>
   </div>
-  
   <div id="messages"></div>
-
   <div id="reply-preview">
-    <div class="reply-box">
-      <div class="reply-name" id="reply-to-name">Reply to BK</div>
-      <div id="reply-to-text" style="color: gray;">Message content...</div>
-    </div>
-    <div class="cancel-reply" onclick="cancelReply()">×</div>
+    <div id="reply-to-text" style="font-size: 12px; border-left: 3px solid var(--accent-shundruu); padding-left: 10px; opacity: 0.8;"></div>
+    <div onclick="cancelReply()" style="cursor:pointer; font-size: 20px;">×</div>
   </div>
-
-  <div id="typing-indicator"></div>
-  
+  <div id="typing-indicator" style="padding: 5px 25px; font-size: 11px; font-style: italic; opacity: 0.7;"></div>
   <div class="chat-input-area">
-    <div class="input-wrapper"><textarea id="msg-input" placeholder="Type Something Sweet..." rows="1"></textarea></div>
+    <div class="input-wrapper"><textarea id="msg-input" placeholder="Say something sweet..." rows="1"></textarea></div>
     <button id="send-btn" onclick="sendMessage()">➤</button>
   </div>
 </div>
@@ -215,113 +189,73 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  let currentUser = null, typingRef = null, replyingTo = null;
+  let currentUser = null, replyingTo = null;
+
+  window.setTheme = (t) => {
+    document.body.className = 'theme-' + t;
+    localStorage.setItem('chat-theme', t);
+  };
+  const savedTheme = localStorage.getItem('chat-theme');
+  if(savedTheme) setTheme(savedTheme);
 
   function updateAnniversary(date) {
-    const start = new Date(date);
-    const now = new Date();
-    const diff = Math.ceil(Math.abs(now - start) / (1000 * 60 * 60 * 24));
+    const diff = Math.ceil(Math.abs(new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
     document.getElementById('login-day-counter').textContent = diff;
-    document.getElementById('chat-day-counter').textContent = diff;
+    document.getElementById('chat-day-counter').textContent = "Day " + diff + " of us";
   }
 
-  window.login = function(name) {
+  window.login = (name) => {
     currentUser = name;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'flex';
     document.body.classList.toggle('is-shundruu', name === 'Shundruu');
     listenMessages();
-    const other = (name === 'Ponnu') ? 'Shundruu' : 'Ponnu';
-    typingRef = ref(db, `typing/${name}`);
-    onValue(ref(db, `typing/${other}`), (snap) => {
-      document.getElementById('typing-indicator').textContent = snap.val() ? `${other} is typing...` : '';
-    });
   };
 
-  window.cancelReply = function() {
-    replyingTo = null;
-    document.getElementById('reply-preview').style.display = 'none';
-  };
+  window.cancelReply = () => { replyingTo = null; document.getElementById('reply-preview').style.display = 'none'; };
 
-  window.sendMessage = function() {
+  window.sendMessage = () => {
     const input = document.getElementById('msg-input');
-    const text = input.value.trim();
-    if (!text) return;
-
-    const msgData = { 
-        sender: currentUser, 
-        text, 
-        ts: serverTimestamp(), 
-        liked: false 
-    };
-
-    if (replyingTo) {
-      msgData.replyTo = replyingTo;
-      cancelReply();
-    }
-
-    push(ref(db, 'messages'), msgData);
+    if (!input.value.trim()) return;
+    const data = { sender: currentUser, text: input.value, ts: serverTimestamp() };
+    if (replyingTo) { data.replyTo = replyingTo; cancelReply(); }
+    push(ref(db, 'messages'), data);
     input.value = '';
-    set(typingRef, null);
+    input.style.height = 'auto';
   };
 
   function listenMessages() {
     onChildAdded(ref(db, 'messages'), (snap) => {
-      const msgId = snap.key;
       const msg = snap.val();
       const container = document.getElementById('messages');
-      const isMine = msg.sender === currentUser;
-      
       const row = document.createElement('div');
-      row.className = 'msg-row ' + (isMine ? 'mine' : 'theirs');
-
-      let replyHtml = '';
-      if (msg.replyTo) {
-        replyHtml = `<div class="reply-inside"><b>${msg.replyTo.sender}:</b> ${msg.replyTo.text.substring(0,30)}...</div>`;
-      }
-
-      row.innerHTML = `
-        <div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="bubble-${msgId}">
-          ${replyHtml}
-          ${msg.text.replace(/</g,'&lt;')}
-        </div>
-        <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ""}</div>
-      `;
+      row.className = 'msg-row ' + (msg.sender === currentUser ? 'mine' : 'theirs');
       
-      const bubble = row.querySelector('.msg-bubble');
+      let replySnippet = msg.replyTo ? `<div class="reply-inside"><b>${msg.replyTo.sender}:</b> ${msg.replyTo.text.substring(0,25)}...</div>` : '';
       
-      // Single Click to Reply
-      bubble.addEventListener('click', () => {
+      row.innerHTML = `<div class="msg-bubble" id="b-${snap.key}">${replySnippet}${msg.text.replace(/</g,'&lt;')}</div>
+                       <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ""}</div>`;
+      
+      row.querySelector('.msg-bubble').onclick = () => {
         replyingTo = { sender: msg.sender, text: msg.text };
-        document.getElementById('reply-to-name').textContent = `Reply to ${msg.sender}`;
-        document.getElementById('reply-to-text').textContent = msg.text;
+        document.getElementById('reply-to-text').textContent = "Replying to: " + msg.text;
         document.getElementById('reply-preview').style.display = 'flex';
         document.getElementById('msg-input').focus();
-      });
-
-      // Double Click to Like
-      bubble.addEventListener('dblclick', (e) => {
-        e.stopPropagation(); // Prevent trigger single click
-        update(ref(db, `messages/${msgId}`), { liked: !msg.liked });
-      });
+      };
 
       container.appendChild(row);
       container.scrollTop = container.scrollHeight;
     });
-
-    onValue(ref(db, 'messages'), (snap) => {
-      snap.forEach((childSnap) => {
-        const el = document.getElementById(`bubble-${childSnap.key}`);
-        if (el) childSnap.val().liked ? el.classList.add('liked') : el.classList.remove('liked');
-      });
-    });
   }
 
-  const input = document.getElementById('msg-input');
-  input.addEventListener('input', () => { if (typingRef) set(typingRef, true); });
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+  // Auto-resize textarea
+  const textarea = document.getElementById('msg-input');
+  textarea.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
 
-  updateAnniversary('2026-02-03');
+  updateAnniversary('2026-02-03'); // EDIT YOUR ANNIVERSARY DATE HERE
 </script>
 </body>
 </html>
