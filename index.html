@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ponnu & Shundruu 💬</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --border: #e8e8e3;
+      --text-primary: #1a1a1a;
+      --text-secondary: #888880;
+      --accent-ponnu: #2563eb;
+      --accent-shundruu: #db2777;
+      --bubble-ponnu: #2563eb;
+      --bubble-shundruu: #f3f3ee;
+      --bubble-ponnu-text: #ffffff;
+      --bubble-shundruu-text: #1a1a1a;
+      --input-bg: #ffffff;
+      --header-bg: #ffffff;
+      --online: #22c55e;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #login-screen {
+      width: 100%;
+      max-width: 360px;
+      padding: 20px;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 40px 36px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
+
+    .login-card .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-card .brand .hearts {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .login-card .brand h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .login-card .brand p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .user-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .user-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-family: 'DM Sans', sans-serif;
+      text-align: left;
+    }
+
+    .user-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+    .user-btn.ponnu { border-color: var(--accent-ponnu); }
+    .user-btn.ponnu:hover { background: #eff6ff; }
+    .user-btn.shundruu { border-color: var(--accent-shundruu); }
+    .user-btn.shundruu:hover { background: #fdf2f8; }
+
+    .user-btn .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .user-btn.ponnu .avatar { background: #dbeafe; color: var(--accent-ponnu); }
+    .user-btn.shundruu .avatar { background: #fce7f3; color: var(--accent-shundruu); }
+
+    .user-btn .info .name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .user-btn .info .sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .firebase-note {
+      margin-top: 28px;
+      padding: 14px 16px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+
+    .firebase-note strong { display: block; margin-bottom: 3px; }
+
+    /* ── CHAT SCREEN ── */
+    #chat-screen {
+      display: none;
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      max-height: 100vh;
+      flex-direction: column;
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+    }
+
+    @media (min-height: 700px) {
+      #chat-screen {
+        height: 92vh;
+        max-height: 820px;
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      body { padding: 20px; }
+    }
+
+    /* Header */
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-avatars {
+      position: relative;
+      width: 44px;
+      height: 36px;
+    }
+
+    .ha-1, .ha-2 {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      position: absolute;
+      border: 2px solid var(--surface);
+    }
+
+    .ha-1 { background: #dbeafe; color: var(--accent-ponnu); top: 0; left: 0; z-index: 2; }
+    .ha-2 { background: #fce7f3; color: var(--accent-shundruu); bottom: 0; right: 0; z-index: 1; }
+
+    .header-info .title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+
+    .header-info .status {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 1px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--online);
+      animation: pulse 2s infinite;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .you-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .you-badge.ponnu { background: #dbeafe; color: var(--accent-ponnu); }
+    .you-badge.shundruu { background: #fce7f3; color: var(--accent-shundruu); }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .logout-btn:hover { background: var(--bg); color: var(--text-primary); }
+
+    /* Messages */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scroll-behavior: smooth;
+    }
+
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .date-divider {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: 'DM Mono', monospace;
+      margin: 12px 0 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 72%;
+      animation: msgIn 0.2s ease;
+    }
+
+    .msg-row.mine { align-self: flex-end; align-items: flex-end; }
+    .msg-row.theirs { align-self: flex-start; align-items: flex-start; }
+
+    .msg-sender {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+      padding: 0 4px;
+    }
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14.5px;
+      line-height: 1.5;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .msg-row.mine .msg-bubble {
+      background: var(--bubble-ponnu);
+      color: var(--bubble-ponnu-text);
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-row.theirs .msg-bubble {
+      background: var(--bubble-shundruu);
+      color: var(--bubble-shundruu-text);
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    /* When logged in as Shundruu, flip colors */
+    body.is-shundruu .msg-row.mine .msg-bubble {
+      background: var(--accent-shundruu);
+      color: #fff;
+    }
+
+    body.is-shundruu .msg-row.theirs .msg-bubble {
+      background: var(--bubble-shundruu);
+      color: var(--bubble-shundruu-text);
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      padding: 0 4px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .empty-state .emoji { font-size: 36px; margin-bottom: 6px; }
+
+    /* Typing indicator */
+    #typing-indicator {
+      padding: 6px 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      min-height: 24px;
+      font-style: italic;
+      flex-shrink: 0;
+    }
+
+    /* Input */
+    .chat-input-area {
+      padding: 12px 16px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    #msg-input {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+
+    #msg-input:focus { border-color: var(--accent-ponnu); }
+    body.is-shundruu #msg-input:focus { border-color: var(--accent-shundruu); }
+
+    #send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent-ponnu);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    body.is-shundruu #send-btn { background: var(--accent-shundruu); }
+    #send-btn:hover { transform: scale(1.05); opacity: 0.9; }
+    #send-btn:active { transform: scale(0.97); }
+
+    #send-btn svg { width: 18px; height: 18px; }
+
+    /* Setup modal */
+    #setup-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #setup-modal.visible { display: flex; }
+
+    .setup-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .setup-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+    .setup-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+
+    .setup-steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+
+    .setup-step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: #f0f0eb;
+      color: var(--text-primary);
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .setup-step code {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: #f0f0eb;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .config-inputs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+    .config-inputs input {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .config-inputs input:focus { border-color: var(--accent-ponnu); }
+    .config-inputs input::placeholder { color: var(--text-secondary); }
+
+    .setup-save-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent-ponnu);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .setup-save-btn:hover { opacity: 0.88; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="brand">
+      <span class="hearts">💬</span>
+      <h1>Ponnu & Shundruu</h1>
+      <p>Your private little space</p>
+    </div>
+
+    <div class="user-options">
+      <button class="user-btn ponnu" onclick="login('Ponnu')">
+        <div class="avatar">P</div>
+        <div class="info">
+          <div class="name">Ponnu</div>
+          <div class="sub">That's me 👋</div>
+        </div>
+      </button>
+      <button class="user-btn shundruu" onclick="login('Shundruu')">
+        <div class="avatar">S</div>
+        <div class="info">
+          <div class="name">Shundruu</div>
+          <div class="sub">That's me 👋</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="firebase-note">
+      <strong>⚙️ First time setup?</strong>
+      You need to connect Firebase for real-time messaging.
+      <a href="#" onclick="openSetup(); return false;" style="color: #92400e; font-weight:600;">Click here to configure →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHAT SCREEN ── -->
+<div id="chat-screen">
+  <div class="chat-header">
+    <div class="header-left">
+      <div class="header-avatars">
+        <div class="ha-1">P</div>
+        <div class="ha-2">S</div>
+      </div>
+      <div class="header-info">
+        <div class="title">Ponnu & Shundruu 💕</div>
+        <div class="status">
+          <div class="status-dot"></div>
+          <span id="status-text">connected</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="you-badge" id="you-badge"></span>
+      <button class="logout-btn" onclick="logout()">← Switch</button>
+    </div>
+  </div>
+
+  <div id="messages">
+    <div class="empty-state" id="empty-state">
+      <div class="emoji">💌</div>
+      <div>No messages yet</div>
+      <div style="font-size:12px; margin-top:4px;">Say something to start the conversation!</div>
+    </div>
+  </div>
+
+  <div id="typing-indicator"></div>
+
+  <div class="chat-input-area">
+    <div class="input-row">
+      <textarea id="msg-input" placeholder="Type a message..." rows="1"></textarea>
+      <button id="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SETUP MODAL ── -->
+<div id="setup-modal">
+  <div class="setup-card">
+    <h2>🔥 Firebase Setup</h2>
+    <p>This takes ~5 minutes and is completely free. Firebase lets your messages sync in real-time between devices.</p>
+
+    <div class="setup-steps">
+      <div class="setup-step">
+        <div class="step-num">1</div>
+        <div>Go to <strong>console.firebase.google.com</strong> → Create a project (any name)</div>
+      </div>
+      <div class="setup-step">
+        <div class="step-num">2</div>
+        <div>Click <strong>Realtime Database</strong> → Create database → Start in <strong>test mode</strong></div>
+      </div>
+      <div class="setup-step">
+        <div class="step-num">3</div>
+        <div>Go to <strong>Project Settings</strong> → Add a web app → Copy your config values below</div>
+      </div>
+    </div>
+
+    <div class="config-inputs">
+      <input id="cfg-apiKey"            placeholder="apiKey: AIzaSy..." />
+      <input id="cfg-authDomain"        placeholder="authDomain: yourapp.firebaseapp.com" />
+      <input id="cfg-databaseURL"       placeholder="databaseURL: https://yourapp-default-rtdb.firebaseio.com" />
+      <input id="cfg-projectId"         placeholder="projectId: yourapp-xxxxx" />
+    </div>
+
+    <button class="setup-save-btn" onclick="saveConfig()">Save & Connect Firebase</button>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, push, onChildAdded, serverTimestamp, onValue, set, remove }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ── State
+  let db = null, currentUser = null, typingRef = null, typingTimer = null;
+  let lastDate = null;
+
+  // ── Try loading saved config
+  function getConfig() {
+    try { return JSON.parse(localStorage.getItem('pns_firebase_config')); } catch { return null; }
+  }
+
+  function initFirebase(config) {
+    try {
+      const app = initializeApp(config);
+      db = getDatabase(app);
+      return true;
+    } catch (e) {
+      console.error('Firebase init failed:', e);
+      return false;
+    }
+  }
+
+  const savedConfig = getConfig();
+  if (savedConfig) initFirebase(savedConfig);
+
+  // ── Expose globals
+  window.login = function(name) {
+    if (!db) { openSetup(); return; }
+    currentUser = name;
+    document.getElementById('login-screen').style.display = 'none';
+    const chat = document.getElementById('chat-screen');
+    chat.style.display = 'flex';
+    document.body.classList.toggle('is-shundruu', name === 'Shundruu');
+
+    const badge = document.getElementById('you-badge');
+    badge.textContent = name;
+    badge.className = 'you-badge ' + name.toLowerCase();
+
+    listenMessages();
+    listenTyping();
+  };
+
+  window.logout = function() {
+    if (typingRef) set(typingRef, null);
+    currentUser = null;
+    document.getElementById('chat-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('messages').innerHTML = `
+      <div class="empty-state" id="empty-state">
+        <div class="emoji">💌</div>
+        <div>No messages yet</div>
+        <div style="font-size:12px; margin-top:4px;">Say something to start the conversation!</div>
+      </div>`;
+    lastDate = null;
+  };
+
+  window.openSetup = function() {
+    document.getElementById('setup-modal').classList.add('visible');
+  };
+
+  window.saveConfig = function() {
+    const config = {
+      apiKey:       document.getElementById('cfg-apiKey').value.trim(),
+      authDomain:   document.getElementById('cfg-authDomain').value.trim(),
+      databaseURL:  document.getElementById('cfg-databaseURL').value.trim(),
+      projectId:    document.getElementById('cfg-projectId').value.trim(),
+    };
+    if (!config.apiKey || !config.databaseURL) {
+      alert('Please fill in at least the apiKey and databaseURL fields.');
+      return;
+    }
+    localStorage.setItem('pns_firebase_config', JSON.stringify(config));
+    if (initFirebase(config)) {
+      document.getElementById('setup-modal').classList.remove('visible');
+      alert('✅ Firebase connected! Now choose who you are to start chatting.');
+    } else {
+      alert('❌ Could not connect. Double-check your config values.');
+    }
+  };
+
+  window.sendMessage = function() {
+    const input = document.getElementById('msg-input');
+    const text = input.value.trim();
+    if (!text || !db || !currentUser) return;
+
+    push(ref(db, 'messages'), {
+      sender: currentUser,
+      text,
+      ts: serverTimestamp()
+    });
+
+    input.value = '';
+    input.style.height = 'auto';
+    if (typingRef) set(typingRef, null);
+  };
+
+  function listenMessages() {
+    const msgsRef = ref(db, 'messages');
+    onChildAdded(msgsRef, (snap) => {
+      const msg = snap.val();
+      if (!msg) return;
+      appendMessage(msg);
+    });
+  }
+
+  function appendMessage(msg) {
+    const container = document.getElementById('messages');
+    const empty = document.getElementById('empty-state');
+    if (empty) empty.remove();
+
+    const date = msg.ts ? new Date(msg.ts).toLocaleDateString('en-IE', { weekday:'short', month:'short', day:'numeric' }) : 'Just now';
+    if (date !== lastDate) {
+      const div = document.createElement('div');
+      div.className = 'date-divider';
+      div.textContent = date;
+      container.appendChild(div);
+      lastDate = date;
+    }
+
+    const isMine = msg.sender === currentUser;
+    const row = document.createElement('div');
+    row.className = 'msg-row ' + (isMine ? 'mine' : 'theirs');
+
+    const timeStr = msg.ts
+      ? new Date(msg.ts).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })
+      : '';
+
+    row.innerHTML = `
+      ${!isMine ? `<div class="msg-sender">${msg.sender}</div>` : ''}
+      <div class="msg-bubble">${escapeHtml(msg.text)}</div>
+      <div class="msg-time">${timeStr}</div>
+    `;
+
+    container.appendChild(row);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function listenTyping() {
+    const other = currentUser === 'Ponnu' ? 'Shundruu' : 'Ponnu';
+    typingRef = ref(db, `typing/${currentUser}`);
+
+    onValue(ref(db, `typing/${other}`), (snap) => {
+      const indicator = document.getElementById('typing-indicator');
+      indicator.textContent = snap.val() ? `${other} is typing...` : '';
+    });
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  // Input events
+  const input = document.getElementById('msg-input');
+
+  input.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+
+    if (!db || !currentUser) return;
+    typingRef = typingRef || ref(db, `typing/${currentUser}`);
+    set(typingRef, true);
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => set(typingRef, null), 2000);
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      window.sendMessage();
+    }
+  });
+</script>
+</body>
+</html>
