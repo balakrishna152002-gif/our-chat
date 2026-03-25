@@ -44,7 +44,7 @@
     overflow: hidden; transition: all 0.5s ease;
   }
 
-  /* --- CARDS --- */
+  /* --- LOGIN SCREEN --- */
   #login-screen, #lock-screen { width: 100%; max-width: 380px; padding: 20px; animation: fadeIn 0.8s ease; z-index: 10; }
   #lock-screen { display: none; }
 
@@ -56,7 +56,6 @@
   }
   
   body.theme-wine .login-card { background: #2d1216; border-color: #722f37; }
-
   .brand h1 { font-size: 24px; margin-bottom: 25px; color: var(--accent-shundruu); font-weight: 600; }
 
   .theme-chooser { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
@@ -67,15 +66,44 @@
 
   .user-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; width: 100%; }
   .user-btn { 
-    display: flex; align-items: center; gap: 14px; padding: 18px; 
+    display: flex; align-items: center; justify-content: space-between; padding: 18px; 
     border-radius: 20px; border: 2px solid #f0f0f0; background: #fafafa; 
     cursor: pointer; transition: 0.3s; width: 100%; text-align: left;
   }
   .user-btn:hover { transform: translateY(-3px); background: white; border-color: var(--accent-shundruu); }
   
+  .btn-content { display: flex; align-items: center; gap: 14px; }
   .avatar { width: 45px; height: 45px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .ponnu .avatar { background: #eff6ff; color: #3b82f6; }
   .shundruu .avatar { background: #fff1f2; color: #fb7185; }
+
+  .btn-label { display: flex; flex-direction: column; }
+  .btn-label .role { font-size: 11px; font-weight: 600; opacity: 0.6; text-transform: uppercase; }
+  .btn-label .name { font-size: 15px; font-weight: 600; }
+
+  .mood-badge { font-size: 20px; padding-right: 5px; }
+
+  /* IMPROVED BACK & CANCEL BUTTONS */
+  .styled-back-btn {
+    background: transparent;
+    border: 1.5px solid var(--accent-shundruu);
+    color: var(--accent-shundruu);
+    padding: 10px 22px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 10px;
+  }
+  .styled-back-btn:hover {
+    background: var(--accent-shundruu);
+    color: white;
+    box-shadow: 0 5px 15px rgba(251, 113, 133, 0.3);
+    transform: translateY(-2px);
+  }
 
   .anniversary-card {
     background: var(--bg); border-radius: 25px; padding: 20px; width: 100%;
@@ -100,7 +128,16 @@
   }
 
   .chat-header { padding: 18px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .back-btn { background: white; border: 1px solid var(--border); color: var(--accent-shundruu); padding: 8px 15px; border-radius: 15px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+  .header-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .header-avatar { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(0,0,0,0.05); }
+
+  #mood-picker { 
+    display: none; position: absolute; top: 75px; left: 25px; background: white; 
+    padding: 12px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    z-index: 100; gap: 12px; border: 1px solid var(--border);
+  }
+  .mood-opt { font-size: 24px; cursor: pointer; transition: 0.2s; }
+  .mood-opt:hover { transform: scale(1.3); }
 
   #messages { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; }
   .msg-row { display: flex; flex-direction: column; max-width: 85%; animation: bubblePop 0.4s ease; }
@@ -121,7 +158,6 @@
   }
 
   .msg-time { font-size: 9px; opacity: 0.6; margin-top: 4px; padding: 0 5px; }
-
   .reply-inside { background: rgba(0,0,0,0.08); padding: 6px 10px; border-radius: 12px; font-size: 11px; margin-bottom: 5px; border-left: 3px solid var(--accent-shundruu); }
   #reply-preview { display: none; padding: 12px 20px; background: var(--surface); border-top: 1px solid var(--border); align-items: center; justify-content: space-between; }
 
@@ -131,19 +167,8 @@
   #msg-input { width: 100%; border: none; outline: none; background: transparent; padding: 12px 0; color: inherit; font-family: inherit; }
   #send-btn { background: var(--accent-shundruu); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
-  /* --- HEART RAIN & ANIMATIONS --- */
-  .heart-rain {
-    position: fixed;
-    top: -20px;
-    font-size: 20px;
-    animation: fall linear forwards;
-    z-index: 1000;
-    pointer-events: none;
-  }
-  @keyframes fall {
-    to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-  }
-
+  .heart-rain { position: fixed; top: -20px; font-size: 20px; animation: fall linear forwards; z-index: 1000; pointer-events: none; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes bubblePop { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
@@ -161,12 +186,19 @@
     </div>
     <div class="user-options">
       <button class="user-btn ponnu" onclick="requestLock('Ponnu')">
-        <div class="avatar">👦🏻</div>
-        <div class="btn-label"><span class="role">Ponnuuuu</span><span class="name">I am BK</span></div>
+        <div class="btn-content">
+            <div class="avatar">👦🏻</div>
+            <div class="btn-label"><span class="role">Ponnuuuu</span><span class="name">I am BK</span></div>
+        </div>
+        <span id="mood-badge-Ponnu" class="mood-badge"></span>
       </button>
+
       <button class="user-btn shundruu" onclick="requestLock('Shundruu')">
-        <div class="avatar">👧🏻</div>
-        <div class="btn-label"><span class="role">Shundruuu</span><span class="name">I am Mathuu</span></div>
+        <div class="btn-content">
+            <div class="avatar">👧🏻</div>
+            <div class="btn-label"><span class="role">Shundruuu</span><span class="name">I am Mathuu</span></div>
+        </div>
+        <span id="mood-badge-Shundruu" class="mood-badge"></span>
       </button>
     </div>
     <div class="anniversary-card">
@@ -178,17 +210,33 @@
 
 <div id="lock-screen">
   <div class="login-card">
-    <div class="brand"><h1>Enter Passcode</h1></div>
+    <div class="brand"><h1>Passcode Required</h1></div>
     <input type="password" id="pin-field" class="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
-    <button class="back-btn" style="margin-top: 20px;" onclick="location.reload()">Cancel</button>
+    <button class="styled-back-btn" onclick="location.reload()">Cancel</button>
   </div>
 </div>
 
 <div id="chat-screen">
   <div class="chat-header">
-    <div><b id="chat-title">BK & Mathuu 💕</b><br><small id="chat-day-counter" style="font-size: 10px; opacity: 0.8;"></small></div>
-    <button class="back-btn" onclick="location.reload()">Back</button>
+    <div class="header-profile" onclick="toggleMoodPicker()">
+        <div id="my-avatar-box" class="header-avatar">👦🏻</div>
+        <div>
+            <b id="chat-title">BK & Mathuu 💕</b><br>
+            <small id="chat-day-counter" style="font-size: 10px; opacity: 0.8;"></small>
+        </div>
+    </div>
+    <button class="styled-back-btn" style="margin-top:0;" onclick="location.reload()">Back</button>
   </div>
+
+  <div id="mood-picker">
+    <span class="mood-opt" onclick="setMood('😍')">😍</span>
+    <span class="mood-opt" onclick="setMood('😴')">😴</span>
+    <span class="mood-opt" onclick="setMood('😋')">😋</span>
+    <span class="mood-opt" onclick="setMood('😭')">😭</span>
+    <span class="mood-opt" onclick="setMood('😒')">😒</span>
+    <span class="mood-opt" onclick="setMood('✨')">✨</span>
+  </div>
+
   <div id="messages"></div>
   <div id="reply-preview">
     <div id="reply-to-text" style="font-size: 12px; border-left: 3px solid var(--accent-shundruu); padding-left: 10px; opacity: 0.8;"></div>
@@ -222,7 +270,6 @@
   const SECRET_PIN = "1515";
   const ANNIVERSARY_DATE = '2026-02-03';
 
-  // --- PANIC & LOCK ---
   function panicLogout() { location.reload(); }
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') panicLogout(); });
 
@@ -231,12 +278,10 @@
       try { const p = await DeviceMotionEvent.requestPermission(); if (p === 'granted') startMotion(); } catch (e) {}
     } else { startMotion(); }
   }
-
   function startMotion() {
     let lx, ly, lz, thresh = 15;
     window.addEventListener('devicemotion', (e) => {
-      let a = e.accelerationIncludingGravity;
-      if (!a || !a.x) return;
+      let a = e.accelerationIncludingGravity; if (!a || !a.x) return;
       if (lx) {
         let diff = Math.abs(a.x-lx) + Math.abs(a.y-ly) + Math.abs(a.z-lz);
         if (diff > thresh) panicLogout();
@@ -245,7 +290,28 @@
     });
   }
 
-  // --- HEART RAIN EFFECT ---
+  window.toggleMoodPicker = () => {
+    const p = document.getElementById('mood-picker');
+    p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+  };
+
+  window.setMood = (emoji) => {
+    set(ref(db, `moods/${currentUser}`), emoji);
+    document.getElementById('mood-picker').style.display = 'none';
+  };
+
+  onValue(ref(db, 'moods'), (snap) => {
+    const data = snap.val() || {};
+    ['Ponnu', 'Shundruu'].forEach(user => {
+        const badge = document.getElementById(`mood-badge-${user}`);
+        if(badge) badge.textContent = data[user] || '';
+        if(user === currentUser) {
+            const avatar = user === 'Ponnu' ? '👦🏻' : '👧🏻';
+            document.getElementById('my-avatar-box').textContent = (data[user] || avatar);
+        }
+    });
+  });
+
   function startHeartRain() {
     for (let i = 0; i < 30; i++) {
       setTimeout(() => {
@@ -260,7 +326,6 @@
     }
   }
 
-  // --- THEME & TIMER ---
   window.setTheme = (t) => {
     document.body.className = 'theme-' + t;
     localStorage.setItem('chat-theme', t);
@@ -274,7 +339,6 @@
   }
   updateAnniversary(ANNIVERSARY_DATE);
 
-  // --- LOGIN LOGIC ---
   window.requestLock = (name) => {
     currentUser = name;
     initShake(); 
@@ -284,10 +348,8 @@
   };
 
   document.getElementById('pin-field').addEventListener('input', function() {
-    if (this.value === SECRET_PIN) {
-      startHeartRain();
-      setTimeout(() => login(currentUser), 500);
-    } else if (this.value.length >= 4) {
+    if (this.value === SECRET_PIN) { startHeartRain(); setTimeout(() => login(currentUser), 500); }
+    else if (this.value.length >= 4) {
       this.classList.add('shake');
       setTimeout(() => { this.value = ''; this.classList.remove('shake'); }, 400);
     }
@@ -300,7 +362,6 @@
     listenMessages();
   }
 
-  // --- MESSAGES ---
   window.cancelReply = () => { replyingTo = null; document.getElementById('reply-preview').style.display = 'none'; };
 
   window.sendMessage = () => {
@@ -333,12 +394,10 @@
         document.getElementById('reply-preview').style.display = 'flex';
         document.getElementById('msg-input').focus();
       });
-
       bubble.addEventListener('dblclick', (e) => {
         e.stopPropagation();
         update(ref(db, `messages/${msgId}`), { liked: !bubble.classList.contains('liked') });
       });
-
       container.appendChild(row);
       setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     });
