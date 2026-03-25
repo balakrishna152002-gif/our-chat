@@ -62,7 +62,6 @@
   .btn-label .role { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
   .btn-label .name { font-size: 15px; font-weight: 600; }
 
-  /* Anniversary Card on Login */
   .anniversary-card {
     background: linear-gradient(135deg, #fff1f2, #fdf2f8);
     border-radius: 20px; padding: 20px; border: 1px dashed var(--accent-shundruu);
@@ -103,6 +102,12 @@
   .msg-row.mine { align-self: flex-end; align-items: flex-end; }
   .msg-row.theirs { align-self: flex-start; align-items: flex-start; }
   
+  /* Reply Preview inside Bubble */
+  .reply-inside {
+    background: rgba(0,0,0,0.05); border-left: 3px solid rgba(0,0,0,0.2);
+    padding: 5px 10px; border-radius: 10px; font-size: 11px; margin-bottom: 5px; opacity: 0.8;
+  }
+
   .msg-bubble { 
     padding: 12px 18px; border-radius: 22px; font-size: 14.5px; line-height: 1.5; 
     box-shadow: 0 2px 8px rgba(0,0,0,0.03); user-select: none;
@@ -120,11 +125,16 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
 
-  .heart-pop { position: absolute; font-size: 20px; animation: heartFly 0.8s ease-out forwards; pointer-events: none; z-index: 10; }
-  @keyframes heartFly { 0% { transform: scale(0); opacity: 0; bottom: 0; } 30% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(1) translateY(-40px); opacity: 0; } }
+  /* --- REPLY UI --- */
+  #reply-preview {
+    display: none; padding: 10px 20px; background: #fff; border-top: 1px solid var(--border);
+    animation: slideUp 0.3s ease; align-items: center; justify-content: space-between;
+  }
+  .reply-box { border-left: 3px solid var(--accent-shundruu); padding-left: 10px; font-size: 12px; }
+  .reply-box .reply-name { font-weight: bold; color: var(--accent-shundruu); }
+  .cancel-reply { cursor: pointer; color: var(--text-secondary); font-size: 18px; padding: 0 10px; }
 
-  /* Input Area */
-  .chat-input-area { padding: 15px 20px 25px; display: flex; gap: 10px; align-items: flex-end; }
+  .chat-input-area { padding: 10px 20px 25px; display: flex; gap: 10px; align-items: flex-end; }
   .input-wrapper { flex: 1; background: white; border-radius: 25px; padding: 5px 15px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
   #msg-input { flex: 1; border: none; outline: none; padding: 10px 0; background: transparent; font-size: 14px; width: 100%; resize: none; }
   
@@ -133,12 +143,9 @@
     border-radius: 50%; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
   }
   body.is-shundruu #send-btn { background: var(--accent-shundruu); }
-  #send-btn:hover { transform: scale(1.1) rotate(-5deg); }
 
-  #typing-indicator { font-size: 11px; color: var(--accent-shundruu); padding: 0 25px 8px; height: 18px; font-style: italic; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes bubblePop { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 </style>
 </head>
 <body>
@@ -146,19 +153,16 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="brand"><div style="font-size: 40px; margin-bottom: 10px;">👩‍❤️‍👨</div><h1>Our Private Space</h1></div>
-    
     <div class="user-options">
       <button class="user-btn ponnu" onclick="login('Ponnu')">
         <div class="avatar">👦🏻</div>
         <div class="btn-label"><span class="role">BK</span><span class="name">I am Ponnu</span></div>
       </button>
-
       <button class="user-btn shundruu" onclick="login('Shundruu')">
         <div class="avatar">👧🏻</div>
         <div class="btn-label"><span class="role">Mathuu</span><span class="name">I am Shundruu</span></div>
       </button>
     </div>
-
     <div class="anniversary-card">
       <div class="label">Days Together</div>
       <div class="days" id="login-day-counter">0</div>
@@ -173,16 +177,24 @@
       <div class="title">BK & Mathuu 💕</div>
       <div class="mini-timer">Day <span id="chat-day-counter">0</span> Together</div>
     </div>
-    <button class="back-btn" onclick="location.reload()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      Back
-    </button>
+    <button class="back-btn" onclick="location.reload()">Back</button>
   </div>
+  
   <div id="messages"></div>
+
+  <div id="reply-preview">
+    <div class="reply-box">
+      <div class="reply-name" id="reply-to-name">Reply to BK</div>
+      <div id="reply-to-text" style="color: gray;">Message content...</div>
+    </div>
+    <div class="cancel-reply" onclick="cancelReply()">×</div>
+  </div>
+
   <div id="typing-indicator"></div>
+  
   <div class="chat-input-area">
     <div class="input-wrapper"><textarea id="msg-input" placeholder="Type a message..." rows="1"></textarea></div>
-    <button id="send-btn" onclick="sendMessage()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+    <button id="send-btn" onclick="sendMessage()">➤</button>
   </div>
 </div>
 
@@ -203,9 +215,8 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  let currentUser = null, typingRef = null;
+  let currentUser = null, typingRef = null, replyingTo = null;
 
-  // anniversary Date logic
   function updateAnniversary(date) {
     const start = new Date(date);
     const now = new Date();
@@ -219,68 +230,86 @@
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('chat-screen').style.display = 'flex';
     document.body.classList.toggle('is-shundruu', name === 'Shundruu');
-    
-    if ("Notification" in window) Notification.requestPermission();
-
     listenMessages();
-    
     const other = (name === 'Ponnu') ? 'Shundruu' : 'Ponnu';
     typingRef = ref(db, `typing/${name}`);
     onValue(ref(db, `typing/${other}`), (snap) => {
       document.getElementById('typing-indicator').textContent = snap.val() ? `${other} is typing...` : '';
     });
+  };
 
-    setTimeout(() => document.getElementById('msg-input').focus(), 100);
+  window.cancelReply = function() {
+    replyingTo = null;
+    document.getElementById('reply-preview').style.display = 'none';
   };
 
   window.sendMessage = function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
     if (!text) return;
-    push(ref(db, 'messages'), { sender: currentUser, text, ts: serverTimestamp(), liked: false });
+
+    const msgData = { 
+        sender: currentUser, 
+        text, 
+        ts: serverTimestamp(), 
+        liked: false 
+    };
+
+    if (replyingTo) {
+      msgData.replyTo = replyingTo;
+      cancelReply();
+    }
+
+    push(ref(db, 'messages'), msgData);
     input.value = '';
     set(typingRef, null);
   };
 
   function listenMessages() {
-    const msgsRef = ref(db, 'messages');
-    
-    onChildAdded(msgsRef, (snap) => {
+    onChildAdded(ref(db, 'messages'), (snap) => {
       const msgId = snap.key;
       const msg = snap.val();
       const container = document.getElementById('messages');
       const isMine = msg.sender === currentUser;
-      const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
-
-      const time = msg.ts ? new Date(msg.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+      
       const row = document.createElement('div');
       row.className = 'msg-row ' + (isMine ? 'mine' : 'theirs');
-      row.innerHTML = `
-        <div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="bubble-${msgId}">${msg.text.replace(/</g,'&lt;')}</div>
-        <div class="msg-time">${time}</div>
-      `;
-      container.appendChild(row);
 
-      if (!isMine && document.visibilityState === 'hidden') {
-        new Notification(`New message from ${msg.sender} ❤️`, { body: msg.text });
+      let replyHtml = '';
+      if (msg.replyTo) {
+        replyHtml = `<div class="reply-inside"><b>${msg.replyTo.sender}:</b> ${msg.replyTo.text.substring(0,30)}...</div>`;
       }
 
+      row.innerHTML = `
+        <div class="msg-bubble ${msg.liked ? 'liked' : ''}" id="bubble-${msgId}">
+          ${replyHtml}
+          ${msg.text.replace(/</g,'&lt;')}
+        </div>
+        <div class="msg-time">${msg.ts ? new Date(msg.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ""}</div>
+      `;
+      
       const bubble = row.querySelector('.msg-bubble');
-      bubble.addEventListener('dblclick', () => {
-        const currentlyLiked = bubble.classList.contains('liked');
-        if (!currentlyLiked) {
-          const heart = document.createElement('span');
-          heart.className = 'heart-pop'; heart.innerHTML = '❤️';
-          bubble.appendChild(heart);
-          setTimeout(() => heart.remove(), 800);
-        }
-        update(ref(db, `messages/${msgId}`), { liked: !currentlyLiked });
+      
+      // Single Click to Reply
+      bubble.addEventListener('click', () => {
+        replyingTo = { sender: msg.sender, text: msg.text };
+        document.getElementById('reply-to-name').textContent = `Reply to ${msg.sender}`;
+        document.getElementById('reply-to-text').textContent = msg.text;
+        document.getElementById('reply-preview').style.display = 'flex';
+        document.getElementById('msg-input').focus();
       });
 
-      if (isAtBottom) container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      // Double Click to Like
+      bubble.addEventListener('dblclick', (e) => {
+        e.stopPropagation(); // Prevent trigger single click
+        update(ref(db, `messages/${msgId}`), { liked: !msg.liked });
+      });
+
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
     });
 
-    onValue(msgsRef, (snap) => {
+    onValue(ref(db, 'messages'), (snap) => {
       snap.forEach((childSnap) => {
         const el = document.getElementById(`bubble-${childSnap.key}`);
         if (el) childSnap.val().liked ? el.classList.add('liked') : el.classList.remove('liked');
@@ -289,19 +318,9 @@
   }
 
   const input = document.getElementById('msg-input');
-  input.addEventListener('input', () => {
-    if (typingRef) {
-      set(typingRef, true);
-      clearTimeout(window.tType);
-      window.tType = setTimeout(() => set(typingRef, null), 2000);
-    }
-  });
+  input.addEventListener('input', () => { if (typingRef) set(typingRef, true); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
-
-  // INITIALIZE TIMER (Set your date here!)
   updateAnniversary('2026-02-03');
 </script>
 </body>
